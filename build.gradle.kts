@@ -5,12 +5,16 @@ plugins {
 group = "org.example"
 version = "1.0-SNAPSHOT"
 
-repositories {
-    mavenCentral()
-}
+subprojects {
+    apply(plugin = "kotlin")
 
-dependencies {
-    testImplementation(kotlin("test"))
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        testImplementation(kotlin("test"))
+    }
 }
 
 tasks.test {

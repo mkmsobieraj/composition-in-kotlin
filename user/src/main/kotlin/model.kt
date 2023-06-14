@@ -3,6 +3,7 @@
 
 import ProductType.MORTGAGE
 import ProductType.SHORT_TERM_LOAN
+import RiskClass.LOW
 import UserStatus.ACTIVE
 import UserStatus.IN_ACTIVE
 import java.math.BigDecimal
@@ -23,17 +24,10 @@ interface UserStatusService {
     fun convert(): UserStatus
 }
 
-// we discuss creating interface and only one implementation of it on our training. What do you think about it?
-class UserStatusServiceImpl: UserStatusService {
-    override val status: UserStatus
-        get() = ACTIVE // in reality, it would be acquired from somewhere, like external service or something
-    override fun convert() = if (status == ACTIVE) IN_ACTIVE else ACTIVE
-
-}
-
 interface RiskService {
+    // one drawback is not so easy process of updating fields, so in some cases it is worth to consider to move only methods without fields
     val riskClass: RiskClass
-    fun asses()
+    fun asses(): RiskClass
 }
 
 data class Role(
@@ -42,6 +36,7 @@ data class Role(
 
 // I criticized, but I find good reasoning for that. It gives good semantic meaning. For example, I can add business methods with very intuitive meaning
 // user.products.loans (meaning for user products, get loans), or user.products.balance (get balance for all products)
+// argument can be made that it should be a interface, but I do not see the necessity
 data class Products(
     private val products: Set<Product>
 ) {
@@ -63,10 +58,6 @@ data class CashFlow(
     val timestamp: Timestamp,
     val status: CashFlowStatus,
 ) {
-}
-
-interface ProductOperation {
-    val cashFlow: CashFlow
 }
 
 enum class RoleName {
@@ -99,4 +90,20 @@ enum class CashFlowStatus {
     PENDING,
     ORDERED,
     FAILED
+}
+
+// we discuss creating interface and only one implementation of it on our training. What do you think about it?
+internal class UserStatusServiceImpl: UserStatusService {
+    override val status: UserStatus
+        get() = ACTIVE // in reality, it would be acquired from somewhere, like external service or something
+    override fun convert() = if (status == ACTIVE) IN_ACTIVE else ACTIVE
+
+}
+
+internal class RiskServiceImpl: RiskService {
+    override val riskClass: RiskClass
+        get() = LOW
+
+    override fun asses() = RiskClass.values().random()
+
 }

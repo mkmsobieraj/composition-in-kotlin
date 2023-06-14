@@ -1,9 +1,9 @@
-interface UserRepository {
+internal interface UserRepository {
     fun find(login: String): User?
     fun add(user: User): User?
 }
 
-object UserRepositoryImpl: UserRepository {
+internal object UserRepositoryImpl: UserRepository {
     private val users: MutableMap<String, User> = mutableMapOf()
 
     override fun find(login: String): User? = users[login]
