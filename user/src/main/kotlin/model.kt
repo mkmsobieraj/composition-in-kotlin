@@ -17,6 +17,9 @@ data class User(
     private val userStatusService: UserStatusService,
     private val riskService: RiskService,
 ): UserStatusService by userStatusService, RiskService by riskService {
+    companion object {
+        internal fun create(login: String, role: Role) = User(login, role, Products(setOf()), UserStatusServiceImpl(), RiskServiceImpl())
+    }
 }
 
 interface UserStatusService {
@@ -26,8 +29,10 @@ interface UserStatusService {
 
 interface RiskService {
     // one drawback is not so easy process of updating fields, so in some cases it is worth to consider to move only methods without fields
+    // also when we do it like that it is not real service anymore, becouse it is not singleton anymore,
+    // but it suits well when it would be acquired from somewhere, like external service or something, or be calculating by RiskService
     val riskClass: RiskClass
-    fun asses(): RiskClass
+    fun asses(): RiskClass // should methods in interface should be allowed to be internal?
 }
 
 data class Role(
@@ -36,7 +41,7 @@ data class Role(
 
 // I criticized, but I find good reasoning for that. It gives good semantic meaning. For example, I can add business methods with very intuitive meaning
 // user.products.loans (meaning for user products, get loans), or user.products.balance (get balance for all products)
-// argument can be made that it should be a interface, but I do not see the necessity
+// argument can be made that it should be a interface, but I maybe it is not necessary??
 data class Products(
     private val products: Set<Product>
 ) {
@@ -97,7 +102,6 @@ internal class UserStatusServiceImpl: UserStatusService {
     override val status: UserStatus
         get() = ACTIVE // in reality, it would be acquired from somewhere, like external service or something
     override fun convert() = if (status == ACTIVE) IN_ACTIVE else ACTIVE
-
 }
 
 internal class RiskServiceImpl: RiskService {
